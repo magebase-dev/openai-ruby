@@ -5,9 +5,9 @@ require "httparty"
 require "json"
 require "securerandom"
 
-module Skew
+module langmesh
   module OpenAI
-    # SKEW-wrapped OpenAI client - Drop-in replacement
+    # langmesh-wrapped OpenAI client - Drop-in replacement
     #
     # Usage:
     #   # Before
@@ -15,19 +15,19 @@ module Skew
     #   client = OpenAI::Client.new(access_token: api_key)
     #
     #   # After
-    #   require "skew/openai"
-    #   client = Skew::OpenAI::Client.new(access_token: api_key)
+    #   require "langmesh/openai"
+    #   client = langmesh::OpenAI::Client.new(access_token: api_key)
     #
     #   # Works exactly the same!
     class Client < ::OpenAI::Client
-      SKEW_API_KEY = ENV.fetch("SKEW_API_KEY", "")
-      SKEW_TELEMETRY_ENDPOINT = ENV.fetch("SKEW_TELEMETRY_ENDPOINT", "https://api.skew.ai/v1/telemetry")
-      SKEW_PROXY_ENABLED = ENV.fetch("SKEW_PROXY_ENABLED", "false") == "true"
-      SKEW_BASE_URL = ENV.fetch("SKEW_BASE_URL", "https://api.skew.ai/v1/openai")
+      langmesh_API_KEY = ENV.fetch("langmesh_API_KEY", "")
+      langmesh_TELEMETRY_ENDPOINT = ENV.fetch("langmesh_TELEMETRY_ENDPOINT", "https://api.langmesh.ai/v1/telemetry")
+      langmesh_PROXY_ENABLED = ENV.fetch("langmesh_PROXY_ENABLED", "false") == "true"
+      langmesh_BASE_URL = ENV.fetch("langmesh_BASE_URL", "https://api.langmesh.ai/v1/openai")
 
       def initialize(options = {})
         super(options)
-        @telemetry_enabled = !SKEW_API_KEY.empty?
+        @telemetry_enabled = !langmesh_API_KEY.empty?
         @telemetry_buffer = []
         @telemetry_mutex = Mutex.new
 
@@ -107,10 +107,10 @@ module Skew
         Thread.new do
           begin
             HTTParty.post(
-              SKEW_TELEMETRY_ENDPOINT,
+              langmesh_TELEMETRY_ENDPOINT,
               headers: {
                 "Content-Type" => "application/json",
-                "Authorization" => "Bearer #{SKEW_API_KEY}"
+                "Authorization" => "Bearer #{langmesh_API_KEY}"
               },
               body: { events: batch }.to_json,
               timeout: 5
